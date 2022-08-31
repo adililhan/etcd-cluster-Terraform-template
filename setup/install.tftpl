@@ -1,0 +1,5 @@
+#!/bin/bash
+hostnamectl set-hostname etcd-${index}
+wget "https://storage.googleapis.com/etcd/v${etcd_version}/etcd-v${etcd_version}-linux-amd64.tar.gz" -O /tmp/etcd.tar.gz
+tar -zxvf /tmp/etcd.tar.gz -C /tmp/
+cp /tmp/etcd-v${etcd_version}-linux-amd64/etcd* /usr/bin/

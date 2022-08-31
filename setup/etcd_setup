@@ -1,0 +1,20 @@
+#!/bin/bash
+mv /tmp/etcd.service /etc/systemd/system/etcd.service
+systemctl daemon-reload
+cluster_ips=$(tr '\n' ',' < /tmp/private_ips.txt)
+rm -rf /tmp/private_ips.txt /tmp/etcd*
+ip=$(hostname -I | xargs)
+tee /etc/etcd <<EOF
+ETCD_NAME=etcd-$1
+ETCD_DATA_DIR=/var/lib/etcd
+ETCD_LISTEN_CLIENT_URLS=http://${ip}:2379,http://127.0.0.1:2379
+ETCD_LISTEN_PEER_URLS=http://${ip}:2380
+ETCD_ADVERTISE_CLIENT_URLS=http://${ip}:2379
+ETCD_INITIAL_ADVERTISE_PEER_URLS=http://${ip}:2380
+ETCD_INITIAL_CLUSTER_STATE=new
+ETCD_INITIAL_CLUSTER_TOKEN=etcd-cluster
+ETCD_INITIAL_CLUSTER=${cluster_ips}
+EOF
+systemctl enable etcd
+sync
+service etcd start &
